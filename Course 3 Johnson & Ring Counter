@@ -1,0 +1,49 @@
+// D Flip-Flop Implementation
+
+module E9(d_input, clk, nrst, control, load, seg);
+	input [4:0] d_input; 
+	input clk;
+	input nrst; 
+	input control; 
+	input load;
+	output [4:0] seg;
+	wire [4:0] q;
+	wire [4:0] nq;
+	reg [4:0] w1;
+	
+	always @ (negedge clk) begin 
+		w1 = q;
+		
+	// johnson counter 	
+	if (control)
+		w1[4] = nq[4];
+	// ring counter	
+	else
+		w1[4] = q[4];
+	
+	if (load)
+		w1 = {d_input[0], d_input[4:1]};
+	end
+	 
+	d_flip_flop(w1[4], clk, ~nrst, q[0], nq[0]);
+	d_flip_flop(w1[0], clk, ~nrst, q[1], nq[1]);
+	d_flip_flop(w1[1], clk, ~nrst, q[2], nq[2]);
+	d_flip_flop(w1[2], clk, ~nrst, q[3], nq[3]);
+	d_flip_flop(w1[3], clk, ~nrst, q[4], nq[4]);
+		
+	assign seg = q;
+endmodule
+
+module d_flip_flop(
+	input d,
+	input clk,
+	input nrst,
+	output reg q,
+	output reg nq
+	);
+	
+	always @(posedge clk or negedge nrst) begin
+		q = d;
+		nq = ~q;
+	end
+endmodule
